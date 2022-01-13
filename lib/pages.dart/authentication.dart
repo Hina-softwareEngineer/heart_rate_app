@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:heart_rate/bloc/auth_bloc.dart';
 import 'package:heart_rate/bloc/bottomNavBar.dart';
 import 'package:heart_rate/utils/AuthDetails.dart';
-import 'package:provider/provider.dart';
 
 class AuthenticationComponent extends StatefulWidget {
   const AuthenticationComponent({Key? key}) : super(key: key);
@@ -24,35 +24,77 @@ class _AuthenticationComponentState extends State<AuthenticationComponent> {
           return Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: Color(0xFFFFFFFF),
-              body: Container(
-                  padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
-                  child: Column(
-                    children: [
-                      Text("Care your Heart"),
-                      TabBar(
-                        labelColor: Colors.black,
-                        tabs: [
-                          Tab(text: 'Login'),
-                          Tab(text: 'Signup'),
-                        ],
-                      ),
-                      Container(
-                          child: Expanded(
-                        child: TabBarView(controller: tabController, children: [
-                          Consumer<AuthenticationBloc>(
-                            builder: (context, auth, child) {
-                              return LoginComp(authData: auth);
-                            },
-                          ),
-                          Consumer<AuthenticationBloc>(
-                            builder: (context, auth, child) {
-                              return SignUpComponent(authData: auth);
-                            },
-                          ),
-                        ]),
-                      ))
-                    ],
-                  )));
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    padding: EdgeInsets.fromLTRB(0, 40, 0, 0),
+                    child: Column(
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image(
+                                  image: AssetImage('images/heart.jpeg'),
+                                  width: 75,
+                                  height: 75),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Text(
+                                'HeartCare',
+                                style: TextStyle(
+                                    fontSize: 32,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ]),
+                        SizedBox(height: 20),
+                        Text(
+                          "Take care of your Heart",
+                          style: TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        SizedBox(height: 30),
+                        Divider(
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                        TabBar(
+                          labelColor: Colors.red.shade800,
+                          unselectedLabelColor: Colors.black,
+                          labelStyle: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Poppins"),
+                          tabs: const [
+                            Tab(
+                              text: 'Login',
+                            ),
+                            Tab(text: 'Signup'),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                            child: Expanded(
+                          child:
+                              TabBarView(controller: tabController, children: [
+                            Consumer<AuthenticationBloc>(
+                              builder: (context, auth, child) {
+                                return LoginComp(authData: auth);
+                              },
+                            ),
+                            Consumer<AuthenticationBloc>(
+                              builder: (context, auth, child) {
+                                return SignUpComponent(authData: auth);
+                              },
+                            ),
+                          ]),
+                        ))
+                      ],
+                    )),
+              ));
         }));
   }
 }
@@ -116,25 +158,26 @@ class _LoginCompState extends State<LoginComp> {
 
   @override
   Widget build(BuildContext context) {
-    print("login -> ${widget.authData.authData}");
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            height: 20,
+          ),
           TextFormField(
             controller: emailController,
             style: TextStyle(fontSize: 14),
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Email',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Email is required';
@@ -142,7 +185,7 @@ class _LoginCompState extends State<LoginComp> {
             },
           ),
           SizedBox(
-            height: 20,
+            height: 25,
           ),
           TextFormField(
             controller: passwordController,
@@ -150,14 +193,13 @@ class _LoginCompState extends State<LoginComp> {
             obscureText: true,
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Password',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Password is required';
@@ -167,7 +209,7 @@ class _LoginCompState extends State<LoginComp> {
           SizedBox(height: 40),
           SizedBox(
             width: double.infinity,
-            height: 45,
+            height: 50,
             child: ElevatedButton(
                 onPressed: () {
                   FocusScope.of(context).unfocus();
@@ -176,7 +218,7 @@ class _LoginCompState extends State<LoginComp> {
                 child: Text("Login"),
                 style: ButtonStyle(
                     backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.pinkAccent),
+                        MaterialStateProperty.all<Color>(Colors.red),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3.0),
                         side: BorderSide(color: Colors.red))))),
@@ -255,23 +297,25 @@ class _SignUpComponentState extends State<SignUpComponent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            height: 20,
+          ),
           TextFormField(
             controller: usernameController,
             style: TextStyle(fontSize: 14),
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Username',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Username is required';
@@ -286,14 +330,13 @@ class _SignUpComponentState extends State<SignUpComponent> {
             style: TextStyle(fontSize: 14),
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Email',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Email is required';
@@ -308,14 +351,13 @@ class _SignUpComponentState extends State<SignUpComponent> {
             style: TextStyle(fontSize: 14),
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Phone',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Phone is required';
@@ -331,14 +373,13 @@ class _SignUpComponentState extends State<SignUpComponent> {
             obscureText: true,
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide: BorderSide(color: Colors.pinkAccent, width: 2)),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 1.5)),
                 contentPadding: EdgeInsets.fromLTRB(15, 15, 15, 15),
                 labelText: 'Password',
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    borderSide:
-                        BorderSide(color: Colors.pinkAccent, width: 2))),
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderSide: BorderSide(color: Colors.red, width: 2))),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Password is required';
@@ -348,7 +389,7 @@ class _SignUpComponentState extends State<SignUpComponent> {
           SizedBox(height: 40),
           SizedBox(
             width: double.infinity,
-            height: 45,
+            height: 50,
             child: ElevatedButton(
                 onPressed: () {
                   FocusScope.of(context).unfocus();
@@ -357,7 +398,7 @@ class _SignUpComponentState extends State<SignUpComponent> {
                 child: Text("Signup"),
                 style: ButtonStyle(
                     backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.pinkAccent),
+                        MaterialStateProperty.all<Color>(Colors.red),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3.0),
                         side: BorderSide(color: Colors.red))))),

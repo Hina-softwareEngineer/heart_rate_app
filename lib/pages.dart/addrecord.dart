@@ -1,14 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:heart_rate/bloc/auth_bloc.dart';
 import 'package:heart_rate/bloc/bottomNavBar.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:heart_rate/utils/AuthDetails.dart';
-import 'package:heart_rate/utils/MedicalRecord.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'package:camera/camera.dart';
-import 'package:dio/dio.dart';
 
 class AddMedicalRecord extends StatefulWidget {
   const AddMedicalRecord({Key? key}) : super(key: key);
@@ -29,10 +24,7 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
   String restingECG = 'Select';
   String exerciseAngina = 'Select';
   String st_slope = 'Select';
-
-  void set_heartBeat(double bpm) {
-    print("gett the bpm ${bpm}");
-  }
+  bool openCalculatorScreen = false;
 
   void onSubmitData() async {
     try {
@@ -109,7 +101,7 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.pinkAccent,
+          backgroundColor: Colors.red,
           title: const Text(
             "Add Medical Record",
           ),
@@ -119,7 +111,6 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
         backgroundColor: const Color(0xFFffffff),
         bottomNavigationBar:
             Consumer<BottomNavBarBloc>(builder: (context, provider, child) {
-          print('curent ${provider.currentIndex}');
           return BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -136,7 +127,7 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
               ),
             ],
             currentIndex: provider.currentIndex,
-            selectedItemColor: Colors.amber[800],
+            selectedItemColor: Colors.red,
             onTap: (int index) {
               if (index != provider.currentIndex) {
                 provider.setIndex(index);
@@ -144,10 +135,12 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                   Navigator.pushReplacementNamed(context, '/dashboard');
                 }
                 if (index == 2) {
-                  final authProvider = Provider.of<AuthenticationBloc>(context);
+                  final authProvider =
+                      Provider.of<AuthenticationBloc>(context, listen: false);
                   if (authProvider.authDetails['isAuthenticated'] &&
                       authProvider.authDetails['loading']) {
                     authProvider.logout_user();
+                    Navigator.pushReplacementNamed(context, '/auth');
                   }
                 }
               }
@@ -164,10 +157,15 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                   child: Container(
                       padding: EdgeInsets.all(20),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Select Gender"),
+                          Text("Select Gender",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600)),
                           ListTile(
-                            title: const Text('Male'),
+                            focusColor: Colors.red,
+                            title: const Text('Male',
+                                style: TextStyle(fontSize: 13)),
                             leading: Radio(
                               value: "M",
                               groupValue: gender,
@@ -179,7 +177,9 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             ),
                           ),
                           ListTile(
-                            title: const Text('Female'),
+                            title: const Text('Female',
+                                style: TextStyle(fontSize: 13)),
+                            focusColor: Colors.red,
                             leading: Radio(
                               value: 'F',
                               groupValue: gender,
@@ -198,30 +198,34 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
+                            style: TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 1.5)),
                                 contentPadding:
                                     EdgeInsets.fromLTRB(0, 15, 15, 3),
                                 border: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 2)),
                                 hintText: 'Enter your Age',
                                 labelText: "Age"),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 20,
                           ),
                           DropdownButton<String>(
                             isExpanded: true,
                             value: chestPainType,
                             icon: const Icon(Icons.keyboard_arrow_down),
                             elevation: 16,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: "Poppins"),
                             underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                              height: 1.5,
+                              color: Colors.red,
                             ),
                             onChanged: (String? newValue) {
                               setState(() {
@@ -255,15 +259,16 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
+                            style: TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 1.5)),
                                 contentPadding:
                                     EdgeInsets.fromLTRB(0, 15, 15, 3),
                                 border: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 2)),
                                 hintText: 'Enter you Blood Pressure',
                                 labelText: "Blood Pressure"),
                           ),
@@ -277,15 +282,16 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
+                            style: TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 1.5)),
                                 contentPadding:
                                     EdgeInsets.fromLTRB(0, 15, 15, 3),
                                 border: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 2)),
                                 hintText: 'Enter your Cholestrol',
                                 labelText: "Cholestrol"),
                           ),
@@ -299,15 +305,16 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
+                            style: TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 1.5)),
                                 contentPadding:
                                     EdgeInsets.fromLTRB(0, 15, 15, 3),
                                 border: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 2)),
                                 hintText: 'Enter your Fasting Blood Sugar',
                                 labelText: "Sugar"),
                           ),
@@ -318,31 +325,34 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                             controller: oldpeak,
                             textCapitalization: TextCapitalization.sentences,
                             keyboardType: TextInputType.number,
+                            style: TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 1.5)),
                                 contentPadding:
                                     EdgeInsets.fromLTRB(0, 15, 15, 3),
                                 border: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Colors.pinkAccent, width: 2)),
+                                        color: Colors.red, width: 2)),
                                 hintText: 'Enter your Old Peak',
                                 labelText: "Old peak"),
                           ),
                           const SizedBox(
-                            height: 18,
+                            height: 20,
                           ),
-                          SizedBox(height: 15),
                           DropdownButton<String>(
                             isExpanded: true,
                             value: restingECG,
                             icon: const Icon(Icons.keyboard_arrow_down),
                             elevation: 16,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: "Poppins"),
                             underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                              height: 1.5,
+                              color: Colors.red,
                             ),
                             onChanged: (String? newValue) {
                               setState(() {
@@ -367,16 +377,19 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                                   value: 'LVH'),
                             ],
                           ),
-                          SizedBox(height: 15),
+                          SizedBox(height: 20),
                           DropdownButton<String>(
                             isExpanded: true,
                             value: exerciseAngina,
                             icon: const Icon(Icons.keyboard_arrow_down),
                             elevation: 16,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: "Poppins"),
                             underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                              height: 1.5,
+                              color: Colors.red,
                             ),
                             onChanged: (String? newValue) {
                               setState(() {
@@ -393,16 +406,19 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                               DropdownMenuItem(child: Text("No"), value: 'N'),
                             ],
                           ),
-                          SizedBox(height: 15),
+                          SizedBox(height: 20),
                           DropdownButton<String>(
                             isExpanded: true,
                             value: st_slope,
                             icon: const Icon(Icons.keyboard_arrow_down),
                             elevation: 16,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: "Poppins"),
                             underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                              height: 1.5,
+                              color: Colors.red,
                             ),
                             onChanged: (String? newValue) {
                               setState(() {
@@ -424,26 +440,44 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
                                   child: Text("Down sloping"), value: 'down'),
                             ],
                           ),
+                          SizedBox(height: 20),
+                          SizedBox(
+                            child: Center(
+                              child: ElevatedButton(
+                                  onPressed: () async {
+                                    var beat = await Navigator.pushNamed(
+                                        context, '/heart_rate');
+                                    setState(() {
+                                      maxHR = int.parse("${beat}");
+                                      openCalculatorScreen = true;
+                                    });
+                                  },
+                                  child: Text(
+                                    '${openCalculatorScreen ? 'Calculated beat is ${maxHR} bpm' : 'Calculate Heart Rate'}',
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ),
                           SizedBox(height: 15),
-                          ElevatedButton(
-                              onPressed: () async {
-                                var beat = await Navigator.pushNamed(
-                                    context, '/heart_rate');
-                                setState(() {
-                                  maxHR = int.parse("${beat}");
-                                });
-                              },
-                              child: Text(
-                                'Calculate Heart Rate',
-                                style: TextStyle(
-                                    color: Colors.blueGrey, fontSize: 24),
-                              )),
-                          SizedBox(height: 15),
-                          ElevatedButton(
-                              child: Text("Save Medical Record"),
-                              onPressed: () {
-                                onSubmitData();
-                              })
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  onSubmitData();
+                                },
+                                child: Text("Save Medical Record"),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.red),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(3.0),
+                                            side: BorderSide(
+                                                color: Colors.red))))),
+                          )
                         ],
                       )))),
         ));

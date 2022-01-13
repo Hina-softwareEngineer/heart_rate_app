@@ -1,20 +1,23 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heart_rate/bloc/auth_bloc.dart';
 import 'package:heart_rate/bloc/bottomNavBar.dart';
-import 'package:heart_rate/homePage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:heart_rate/pages.dart/addrecord.dart';
 import 'package:heart_rate/pages.dart/authentication.dart';
 import 'package:heart_rate/pages.dart/dashboard.dart';
 import 'package:heart_rate/pages.dart/heartrate.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:heart_rate/utils/firebase_message.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 late List<CameraDescription> cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp();
   cameras = await availableCameras();
 
   runApp(
@@ -41,6 +44,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   @override
   void initState() {
     super.initState();
@@ -53,6 +57,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final pushNotificationService = PushNotificationService(_firebaseMessaging);
+    pushNotificationService.initialise();
+
     return const Routes();
   }
 }
@@ -75,7 +82,6 @@ class _RoutesState extends State<Routes> {
 
   void didChangeDependencies() {
     final authData = context.watch<AuthenticationBloc>().authData;
-    print("authData -- > ${authData}");
 
     if (authData['loading'] == 'success' && authData['isAuthenticated']) {
       setState(() {
@@ -92,7 +98,6 @@ class _RoutesState extends State<Routes> {
 
   @override
   Widget build(BuildContext context) {
-    print(loading);
     return (loading == 'idle'
         ? Container(
             color: Colors.white,
@@ -102,21 +107,23 @@ class _RoutesState extends State<Routes> {
                 child: CircularProgressIndicator(),
               ),
             ))
-        : MaterialApp(
-            title: 'Heart Failure Detector',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              primarySwatch: Colors.pink,
-              fontFamily: 'Poppins',
-            ),
-            routes: {
-              '/auth': (context) => const AuthenticationComponent(),
-              '/dashboard': (context) => const Dashboard(),
-              '/addrecord': (context) => const AddMedicalRecord(),
-              "/heart_rate": (context) => HeartRateCalculator(cameras: cameras),
-            },
-            home: isAuthenticated && loading == 'success'
-                ? const Dashboard()
-                : const AuthenticationComponent()));
+        : OverlaySupport.global(
+            child: MaterialApp(
+                title: 'Heart Failure Detector',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                  primarySwatch: Colors.red,
+                  fontFamily: 'Poppins',
+                ),
+                routes: {
+                  '/auth': (context) => const AuthenticationComponent(),
+                  '/dashboard': (context) => const Dashboard(),
+                  '/addrecord': (context) => const AddMedicalRecord(),
+                  "/heart_rate": (context) =>
+                      HeartRateCalculator(cameras: cameras),
+                },
+                home: isAuthenticated && loading == 'success'
+                    ? const Dashboard()
+                    : const AuthenticationComponent())));
   }
 }

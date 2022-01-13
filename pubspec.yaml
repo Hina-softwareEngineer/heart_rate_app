@@ -39,12 +39,15 @@ dependencies:
   flutter_bloc: ^8.0.0
   provider: ^6.0.2
   intl: ^0.17.0
+  firebase_messaging: ^11.2.5
   
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  firebase_core: ^1.11.0
+  overlay_support: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +71,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - images/heart.jpeg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -99,3 +105,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins/Poppins-Thin.ttf
+          weight: 300
+        - asset: fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: fonts/Poppins/Poppins-Regular.ttf
+          weight: 400
+        - asset: fonts/Poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+        - asset: fonts/Poppins/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/Poppins/Poppins-Black.ttf
+          weight: 900
+        - asset: fonts/Poppins/Poppins-Italic.ttf
+          style: italic

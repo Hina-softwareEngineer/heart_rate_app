@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:heart_rate/bloc/auth_bloc.dart';
 import 'package:heart_rate/bloc/bottomNavBar.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:heart_rate/utils/AuthDetails.dart';
 import 'package:heart_rate/utils/MedicalRecord.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -37,7 +36,7 @@ class _DashboardState extends State<Dashboard> {
       Dio dio = new Dio();
       dio.options.headers['content-Type'] = 'application/json';
       dio.options.headers["authorization"] = "Bearer ${authToken}";
-      print("await");
+
       await dio
           .get("https://heart-failure.up.railway.app/week-medical-records")
           .then((value) {
@@ -45,7 +44,7 @@ class _DashboardState extends State<Dashboard> {
         for (var record in value.data['data']) {
           weeklyMedicalRecords.add(new MedicalRecord.fromJson(record));
         }
-        print("record ${weeklyMedicalRecords}");
+
         setState(() {
           weeklyData = weeklyMedicalRecords;
           loading = 'success';
@@ -117,10 +116,9 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    print("loading -- ${loading}");
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.pinkAccent,
+          backgroundColor: Colors.red,
           title: const Text(
             "Dashboard",
           ),
@@ -130,7 +128,6 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Color(0xFFffffff),
         bottomNavigationBar:
             Consumer<BottomNavBarBloc>(builder: (context, provider, child) {
-          print('curent ${provider.currentIndex}');
           return BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -147,12 +144,18 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
             currentIndex: provider.currentIndex,
-            selectedItemColor: Colors.amber[800],
+            selectedItemColor: Colors.red,
+            unselectedItemColor: Colors.grey,
             onTap: (int index) {
               if (index != provider.currentIndex) {
                 provider.setIndex(index);
                 if (index == 1) {
                   Navigator.pushNamed(context, '/addrecord');
+                }
+                if (index == 2) {
+                  Provider.of<AuthenticationBloc>(context, listen: false)
+                      .logout_user();
+                  Navigator.pushReplacementNamed(context, '/auth');
                 }
               }
             },
@@ -169,35 +172,132 @@ class _DashboardState extends State<Dashboard> {
                           color: Colors.white,
                           child: Center(
                             child: Padding(
-                              padding: EdgeInsets.all(20),
-                              child: CircularProgressIndicator(),
+                              padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                              child:
+                                  CircularProgressIndicator(color: Colors.red),
                             ),
                           ))
                       : Container(
-                          color: Colors.red,
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                SizedBox(
+                                  height: 15,
+                                ),
                                 Consumer<AuthenticationBloc>(
                                     builder: (context, provider, child) {
-                                  return Text(
-                                      "Welcome ${provider.authData['user'].username} !");
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("Welcome",
+                                          style: TextStyle(
+                                              color: Colors.black87,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w500)),
+                                      Text(
+                                          " ${provider.authData['user'].username} !",
+                                          style: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700)),
+                                    ],
+                                  );
                                 }),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Container(
-                                    color: Colors.blue,
-                                    height: 300,
-                                    child: DateAndHeartDiseaseChart(
-                                        weeklyData: weeklyData)),
-                                Text("Your Heart Rate"),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          offset: Offset(0.0, 1.0), //(x,y)
+                                          blurRadius: 3.0,
+                                        ),
+                                      ]),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 0, 0),
+                                        child: Text("Daily Heart Failure Risk",
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w600)),
+                                      ),
+                                      Container(
+                                          height: 300,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: DateAndHeartDiseaseChart(
+                                                weeklyData: weeklyData),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
                                 Container(
-                                    color: Colors.blue,
-                                    height: 300,
-                                    child: HeartRateVsHeartDisease(
-                                      weeklyData: weeklyData,
-                                    )),
-                                Text("Your Medical History"),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          offset: Offset(0.0, 1.0), //(x,y)
+                                          blurRadius: 3.0,
+                                        ),
+                                      ]),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Text(
+                                          "Daily Heart Beat",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                      Container(
+                                          height: 300,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: HeartRateVsHeartDisease(
+                                              weeklyData: weeklyData,
+                                            ),
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Text("Medical History",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600)),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   child: ListView.builder(
                                     itemBuilder: (context, index) {
@@ -220,61 +320,167 @@ class _DashboardState extends State<Dashboard> {
 
 Widget MedicalRecordCard(context, MedicalRecord data) {
   return Card(
+      elevation: 3.0,
+      color: data.heartDisease == 1 ? Colors.red[100] : Colors.green[100],
       child: Row(
-    children: [
-      IconButton(onPressed: () {}, icon: Icon(Icons.favorite)),
-      Text("${DateFormat("dd-MMM-yyyy HH:mm").format(data.createdAt!)}"),
-      Text("${data.maxHR}"),
-      ElevatedButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                      title: Text(
-                          'Record at ${DateFormat("dd-MMM-yyyy HH:mm").format(data.createdAt!)}'),
-                      content: Column(
-                        children: [
-                          Text("Heart Disease"),
-                          Text("${data.heartDisease == 1 ? "Yes" : "No"}"),
-                          Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.favorite),
+            color: Colors.red,
+          ),
+          Text(
+            "${DateFormat("dd-MMM-yyyy HH:mm").format(data.createdAt!)}",
+            style: TextStyle(fontSize: 12),
+          ),
+          Text("Rate : ${data.maxHR}",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                          title: Text(
+                            'Record on "${DateFormat("MMM dd, yyyy at HH:mm").format(data.createdAt!)}"',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                children: [Text("Age"), Text("${data.age}")],
+                              Text("Heart Disease",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.heartDisease == 1 ? "Yes" : "No"}",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: data.heartDisease == 1
+                                          ? Colors.red
+                                          : Colors.green)),
+                              SizedBox(
+                                height: 13,
                               ),
-                              Column(
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Gender"),
-                                  Text(
-                                      "${data.gender == 'M' ? "Male" : "Female"}")
+                                  Column(
+                                    children: [
+                                      Text("Age",
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey)),
+                                      Text("${data.age}",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black))
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text("Gender",
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey)),
+                                      Text(
+                                          "${data.gender == 'M' ? "Male" : "Female"}",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black))
+                                    ],
+                                  )
                                 ],
-                              )
+                              ),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Resting Blood Pressure ",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.restingBP} mm Hg",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Cholestrol",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.cholestrol} mm/dl",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Fasting Blood Sugar ",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.fastingBS} mg/dl",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Old peak",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text(" ${data.oldpeak}",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Maximum Heart Rating",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.maxHR} bpm",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Chest Pain Type",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.chestPainType}",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Resting Electro Cardiographic ",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.restingECG}",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("Exercise Angine",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text(
+                                  "${data.exerciseAngina == 'N' ? 'No' : "Yes"}",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              Text("ST_Slope",
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.grey)),
+                              Text("${data.stSlope}",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
                             ],
                           ),
-                          Text("Resting Blood Pressure "),
-                          Text("${data.restingBP}"),
-                          Text("Cholestrol"),
-                          Text("${data.cholestrol}"),
-                          Text("Fasting Blood Sugar "),
-                          Text("${data.fastingBS}"),
-                          Text("Old peak"),
-                          Text(" ${data.oldpeak}"),
-                          Text("Maximum Heart Rating"),
-                          Text("${data.maxHR}"),
-                          Text("Chest Pain Type"),
-                          Text("${data.chestPainType}"),
-                          Text("Resting Electro Cardiographic "),
-                          Text("${data.restingECG}"),
-                          Text("Exercise Angine"),
-                          Text("${data.exerciseAngina}"),
-                          Text("ST_Slope"),
-                          Text("${data.stSlope}"),
-                        ],
-                      ),
-                    ));
-          },
-          child: Text("View Details"))
-    ],
-  ));
+                        ));
+              },
+              icon: Icon(Icons.more_vert))
+        ],
+      ));
 }
 
 class DateAndHeartDiseaseChart extends StatelessWidget {
@@ -297,13 +503,27 @@ class DateAndHeartDiseaseChart extends StatelessWidget {
           data: weeklyData,
         )
       ],
+      behaviors: [
+        new charts.ChartTitle('DateTime',
+            behaviorPosition: charts.BehaviorPosition.bottom,
+            titleStyleSpec: charts.TextStyleSpec(fontSize: 14),
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea),
+        new charts.ChartTitle('Risk',
+            behaviorPosition: charts.BehaviorPosition.start,
+            titleStyleSpec: charts.TextStyleSpec(
+              fontSize: 14,
+            ),
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea)
+      ],
       primaryMeasureAxis: charts.NumericAxisSpec(
           tickProviderSpec: charts.BasicNumericTickProviderSpec(
               zeroBound: false, desiredMaxTickCount: 3)),
       domainAxis: charts.OrdinalAxisSpec(
         renderSpec: charts.SmallTickRendererSpec(labelRotation: 60),
       ),
-      animate: false,
+      animate: true,
     );
   }
 }
@@ -330,7 +550,21 @@ class HeartRateVsHeartDisease extends StatelessWidget {
           data: weeklyData,
         )
       ],
-      animate: false,
+      behaviors: [
+        new charts.ChartTitle('DateTime',
+            behaviorPosition: charts.BehaviorPosition.bottom,
+            titleStyleSpec: charts.TextStyleSpec(fontSize: 14),
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea),
+        new charts.ChartTitle('Heart Beat',
+            behaviorPosition: charts.BehaviorPosition.start,
+            titleStyleSpec: charts.TextStyleSpec(
+              fontSize: 14,
+            ),
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea),
+      ],
+      animate: true,
       primaryMeasureAxis: charts.NumericAxisSpec(
           tickProviderSpec:
               charts.BasicNumericTickProviderSpec(zeroBound: false)),

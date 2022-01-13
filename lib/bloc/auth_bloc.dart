@@ -22,18 +22,18 @@ class AuthenticationBloc extends ChangeNotifier {
   void auth_load() async {
     final prefs = await SharedPreferences.getInstance();
     String? getUser = prefs.getString('user');
-    print("Success auth_load :  ${getUser}");
+
     if (getUser != '' && getUser != null) {
       var authData = jsonDecode(jsonDecode(getUser));
       authDetails['loading'] = 'success';
       authDetails['isAuthenticated'] = true;
       authDetails['user'] = AuthDetails.fromJson(authData);
-      print("update");
+
       notifyListeners();
     } else {
       authDetails['loading'] = 'error';
       authDetails['isAuthenticated'] = false;
-      print("not update");
+
       notifyListeners();
     }
   }
@@ -53,7 +53,7 @@ class AuthenticationBloc extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     String jsonValue = jsonEncode(data.toJson());
     prefs.setString('user', jsonEncode(jsonValue));
-    print("Success Signup :  ${data}");
+
     notifyListeners();
   }
 
@@ -64,13 +64,13 @@ class AuthenticationBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void logout_user() {
-    print("logout");
+  void logout_user() async {
     authDetails['loading'] = 'idle';
     authDetails['isAuthenticated'] = false;
     authDetails['error'] = null;
     authDetails['user'] = null;
-
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('user');
     notifyListeners();
   }
 
