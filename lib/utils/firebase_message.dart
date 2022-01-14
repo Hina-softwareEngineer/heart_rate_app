@@ -20,7 +20,7 @@ class PushNotificationService {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
       String? token = await _fcm.getToken();
-      print("FirebaseMessaging token: $token");
+      print("FirebaseMessaging tokenn: $token");
 
       FirebaseMessaging.instance
           .getInitialMessage()

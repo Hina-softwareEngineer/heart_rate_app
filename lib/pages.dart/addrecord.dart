@@ -59,14 +59,14 @@ class _AddMedicalRecordState extends State<AddMedicalRecord> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                '${value.data["heartDisease"] == '1' ? 'You have to immediately go to Dr. for checkup.' : "Congratulations! You have no risk of heart failure yet."}'),
+                '${value.data["heartDisease"] == 1 ? 'You have to immediately go to Dr. for checkup.' : "Congratulations! You have no risk of heart failure yet."}'),
             duration: const Duration(milliseconds: 2000),
             width: 320.0, // Width of the SnackBar.
             padding: const EdgeInsets.symmetric(
               horizontal: 30.0, // Inner padding for SnackBar content.
               vertical: 12.0,
             ),
-            backgroundColor: value.data["heartDisease"] == '1'
+            backgroundColor: value.data["heartDisease"] == 1
                 ? Colors.red.shade600
                 : Colors.green.shade700,
             behavior: SnackBarBehavior.floating,
